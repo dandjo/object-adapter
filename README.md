@@ -37,7 +37,7 @@ class MyAdapter extends ObjectAdapter {
 Now It is possible to access the property `myFoo` on the adapter.
 
 ```php
-$myAdapter = MyAdapter::create($targetObject);
+$myAdapter = new MyAdapter($targetObject);
 echo $myAdapter->myFoo;  // 'bar'
 echo $targetObject->foo;  // 'bar'
 ```
@@ -58,7 +58,7 @@ We can write some sort of "poor man's deserializer".
 class MyJsonAdapter extends JsonObjectAdapter {
     
     public function getFoo() {
-        return ObjectAdapter::create($this->targetObject->foo);
+        return new ObjectAdapter($this->targetObject->foo);
     }
     
 }
@@ -67,7 +67,7 @@ class MyJsonAdapter extends JsonObjectAdapter {
 Let's get the value of `bar` directly with a dotted path.
 
 ```php
-$myJsonAdapter = MyJsonAdapter::create($theJsonAbove);
+$myJsonAdapter = new MyJsonAdapter($theJsonAbove);
 echo $myJsonAdapter->get('foo.bar');  // 'baz'
 ```
 

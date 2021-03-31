@@ -16,24 +16,6 @@ class JsonObjectAdapter extends ObjectAdapter implements JsonSerializable
 {
 
 	/**
-	 * @param mixed $objects
-	 *
-	 * @return array
-	 */
-	public static function createArray($objects): array
-	{
-		if (is_string($objects)) {
-			$objects = json_decode($objects);
-		}
-		if (empty($objects)) {
-			$objects = [];
-		}
-		return array_map(function ($object) {
-			return static::create($object);
-		}, $objects);
-	}
-
-	/**
 	 * JsonObjectAdapter constructor.
 	 * @param array $json
 	 */

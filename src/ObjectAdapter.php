@@ -5,7 +5,6 @@ namespace Dandjo\ObjectAdapter;
 
 
 use ArrayAccess;
-use stdClass;
 
 
 /**
@@ -19,26 +18,6 @@ class ObjectAdapter implements ArrayAccess
 	 * @var object
 	 */
 	public $targetObject;
-
-	/**
-	 * @param $object
-	 * @return mixed
-	 */
-	public static function create($object)
-	{
-		return new static($object);
-	}
-
-	/**
-	 * @param array $objects
-	 * @return array
-	 */
-	public static function createArray(array $objects): array
-	{
-		return array_map(function ($object) {
-			return static::create($object);
-		}, $objects);
-	}
 
 	/**
 	 * ObjectAdapter constructor.
@@ -60,12 +39,12 @@ class ObjectAdapter implements ArrayAccess
 		$properties = preg_split('/\./', $dottedPath);
 		$property = array_shift($properties);
 		if (empty($property)) {
-			return self::create(new stdClass());
+			return new NullAdapter();
 		}
 		if (is_a($this->{$property}, self::class)) {
 			return $this->{$property}->get(implode('.', $properties), $default);
 		}
-		return $this->{$property} ?: ($default !== null ? $default : self::create(new stdClass()));
+		return $this->{$property} ?: ($default !== null ? $default : new NullAdapter());
 	}
 
 	/**
@@ -76,7 +55,7 @@ class ObjectAdapter implements ArrayAccess
 	public function __get($property)
 	{
 		if (empty($property)) {
-			return self::create(new stdClass());
+			return new NullAdapter();
 		}
 		if ($property === 'targetObject') {
 			return $this->targetObject;
@@ -84,7 +63,7 @@ class ObjectAdapter implements ArrayAccess
 		if (method_exists($this, 'get' . ucfirst($property))) {
 			return $this->{'get' . ucfirst($property)}();
 		}
-		return $this->targetObject->{$property} ?? self::create(new stdClass());
+		return $this->targetObject->{$property} ?? new NullAdapter();
 	}
 
 	/**

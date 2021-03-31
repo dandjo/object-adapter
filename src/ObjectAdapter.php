@@ -59,10 +59,13 @@ class ObjectAdapter implements ArrayAccess
 	{
 		$properties = preg_split('/\./', $dottedPath);
 		$property = array_shift($properties);
+		if (empty($property)) {
+			return self::create(new stdClass());
+		}
 		if (is_a($this->{$property}, self::class)) {
 			return $this->{$property}->get(implode('.', $properties), $default);
 		}
-		return $this->{$property} ?: $default;
+		return $this->{$property} ?: ($default !== null ? $default : self::create(new stdClass()));
 	}
 
 	/**
@@ -72,6 +75,9 @@ class ObjectAdapter implements ArrayAccess
 	 */
 	public function __get($property)
 	{
+		if (empty($property)) {
+			return self::create(new stdClass());
+		}
 		if ($property === 'targetObject') {
 			return $this->targetObject;
 		}

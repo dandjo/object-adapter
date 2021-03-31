@@ -58,7 +58,7 @@ We can write some sort of "poor man's deserializer".
 class MyJsonAdapter extends JsonObjectAdapter {
     
     public function getFoo() {
-        return JsonObjectAdapter::create($this->targetObject->foo);
+        return ObjectAdapter::create($this->targetObject->foo);
     }
     
 }

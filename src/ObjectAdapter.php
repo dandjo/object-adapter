@@ -5,6 +5,7 @@ namespace Dandjo\ObjectAdapter;
 
 
 use ArrayAccess;
+use stdClass;
 
 
 /**
@@ -58,7 +59,7 @@ class ObjectAdapter implements ArrayAccess
 	{
 		$properties = preg_split('/\./', $dottedPath);
 		$property = array_shift($properties);
-		if (is_a($this->{$property}, ObjectAdapter::class)) {
+		if (is_a($this->{$property}, self::class)) {
 			return $this->{$property}->get(implode('.', $properties), $default);
 		}
 		return $this->{$property} ?: $default;
@@ -66,7 +67,8 @@ class ObjectAdapter implements ArrayAccess
 
 	/**
 	 * @param $property
-	 * @return mixed|null
+	 *
+	 * @return mixed|object
 	 */
 	public function __get($property)
 	{
@@ -76,7 +78,7 @@ class ObjectAdapter implements ArrayAccess
 		if (method_exists($this, 'get' . ucfirst($property))) {
 			return $this->{'get' . ucfirst($property)}();
 		}
-		return $this->targetObject->{$property} ?? null;
+		return $this->targetObject->{$property} ?? self::create(new stdClass());
 	}
 
 	/**

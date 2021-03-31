@@ -1,0 +1,21 @@
+{
+	"name": "dandjo/object-adapter",
+	"version": "1.0.0",
+	"description": "Provides adapters for target objects with easy property access via magic getter and setter.",
+	"keywords": ["object", "adapter", "getter", "setter"],
+	"type": "library",
+	"require": {
+		"php": ">=7.2",
+		"ext-json": "*"
+	},
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Daniel Pernold",
+			"email": "daniel.pernold@gmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": { "Dandjo\\ObjectAdapter\\": "src/" }
+	}
+}

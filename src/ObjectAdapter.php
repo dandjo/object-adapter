@@ -44,6 +44,9 @@ class ObjectAdapter implements ArrayAccess
 		if (is_a($this->{$property}, self::class)) {
 			return $this->{$property}->get(implode('.', $properties), $default);
 		}
+		if (count($properties) > 0) {
+			return new NullAdapter();
+		}
 		return $this->{$property} ?: ($default !== null ? $default : new NullAdapter());
 	}
 
@@ -56,9 +59,6 @@ class ObjectAdapter implements ArrayAccess
 	{
 		if (empty($property)) {
 			return new NullAdapter();
-		}
-		if ($property === 'targetObject') {
-			return $this->targetObject;
 		}
 		if (method_exists($this, 'get' . ucfirst($property))) {
 			return $this->{'get' . ucfirst($property)}();
@@ -73,10 +73,6 @@ class ObjectAdapter implements ArrayAccess
 	 */
 	public function __set($property, $value): ObjectAdapter
 	{
-		if ($property === 'targetObject') {
-			$this->targetObject = $value;
-			return $this;
-		}
 		if (method_exists($this, 'set' . ucfirst($property))) {
 			$this->{'set' . ucfirst($property)}($value);
 			return $this;

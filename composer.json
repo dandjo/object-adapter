@@ -1,6 +1,6 @@
 {
 	"name": "dandjo/object-adapter",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Provides adapters for target objects with easy property access via magic getter and setter.",
 	"keywords": ["object", "adapter", "getter", "setter"],
 	"type": "library",

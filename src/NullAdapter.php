@@ -22,4 +22,12 @@ class NullAdapter extends ObjectAdapter
 		parent::__construct(new stdClass());
 	}
 
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return '';
+	}
+
 }

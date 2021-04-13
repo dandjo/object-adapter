@@ -1,6 +1,6 @@
 # Object Adapter
 
-Provides adapters for target objects with easy property access via magic getters and setters.
+Provides some base classes for adapting target objects with annotated property access.
 
 ## Installation
 
@@ -9,71 +9,139 @@ Provides adapters for target objects with easy property access via magic getters
 ## Purpose
 
 Its purpose is to make life easier when working with complex objects behind template engines like Twig. It offers some
-syntax sugar like writing camelcase getters (`getSomeProperty`) and accessing the return value via `someProperty` on
+syntax sugar like writing methods with annotations and accessing the return value via the annotated property name on
 the adapter. The same applies to setters. It also offers a generic get method for nested data structures using a dotted
 notation. For this to work, each link in the chain must be an instance of ObjectAdapter or an accessible property.
 
 ## Usage
 
-Imagine you have an object with some properties, our target object.
+To provide a property for your adapter, you have to annotate an appropriate method with either
+`@property\getter property_name` or `@property\setter property_name`. A setter method must take a parameter with the
+value the property should be set to. The name of the method can be chosen arbitrarily. However, the annotation is
+important. If there is no getter or setter, the adapter acts transparently on its target object.
+
+## Examples
+
+Imagine you have an object with some properties, our target object. When using the ObjectAdapter base class directly,
+all properties are transparent by default.
 
 ```php
 $targetObject = new \stdClass();
 $targetObject->foo = 'bar';
+
+$myAdapter = new \Dandjo\ObjectAdapter\ObjectAdapter($targetObject);
+echo $myAdapter->foo;  // 'bar'
 ```
 
-We inherit from the ObjectAdapter and create a getter for the `foo` property on our target object.
+We inherit from the ObjectAdapter and create a getter for the `foo` property on our target object. With the annotation,
+the adapter offers a property called `myFoo`.
 
 ```php
-class MyAdapter extends ObjectAdapter {
+class MyAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter {
     
-    public function getMyFoo() {
+    /**
+     * @property\getter myFoo
+     */
+    public function getMyFoo(): string
+    {
         return $this->targetObject->foo;
     }
     
 }
-```
 
-Now It is possible to access the property `myFoo` on the adapter.
+$targetObject = new \stdClass();
+$targetObject->foo = 'bar';
 
-```php
 $myAdapter = new MyAdapter($targetObject);
 echo $myAdapter->myFoo;  // 'bar'
 echo $targetObject->foo;  // 'bar'
 ```
 
-There's also an adapter handling JSON. Imagine you have a JSON like this.
-
-```json
-{
-  "foo": {
-    "bar": "baz"
-  }  
-}
-```
-
-We can write some sort of "poor man's deserializer".
+Here's an example with a setter.
 
 ```php
-class MyJsonAdapter extends JsonObjectAdapter {
+class MyAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter {
     
-    public function getFoo() {
-        return new ObjectAdapter($this->targetObject->foo);
+    /**
+     * @property\setter myFoo
+     */
+    public function setMyFoo($value): \Dandjo\ObjectAdapter\ObjectAdapter
+    {
+        $this->targetObject->foo = $value;
     }
     
 }
+
+$targetObject = new \stdClass();
+$targetObject->foo = 'bar';
+
+$myAdapter = new MyAdapter($targetObject);
+echo $myAdapter->myFoo;  // 'bar'
+$myAdapter->myFoo = 'baz';
+echo $myAdapter->myFoo;  // 'baz'
+echo $targetObject->foo;  // 'baz'
 ```
 
-Let's get the value of `bar` directly with a dotted path.
+If you want to use deep object hierarchies, take a look at the following example. You can get the value of `bar`
+directly with a dotted path.
 
 ```php
-$myJsonAdapter = new MyJsonAdapter($theJsonAbove);
-echo $myJsonAdapter->get('foo.bar');  // 'baz'
+class MyChildAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter {
+
+    /**
+     * @property\getter myFoo
+     */
+    public function getMyFoo(): string
+    {
+        return $this->targetObject->foo;
+    }
+
+}
+
+class MyAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter {
+    
+    /**
+     * @property\getter myChild
+     */
+    public function getMyChild(): string
+    {   
+        return new MyChildAdapter($this->targetObject->child);
+    }
+    
+}
+
+$targetObject = new \stdClass();
+$targetObject->child = new \stdClass();
+$targetObject->child->foo = 'bar';
+
+$myAdapter = new MyAdapter($targetObject);
+echo $myAdapter->get('myChild.myFoo');  // 'bar'
 ```
 
-There's also a feature updating targets of JsonObjectAdapters.
+Each adapter implements the `ArrayAccess` and `Interator` Interface, so you can also access or loop annotated properties
+like follows.
 
 ```php
-$myJsonAdapter->update('{"foo": {"bar": "doe"}}');
-echo $myAdapter->get('foo.bar');  // 'doe'
+class MyAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter {
+    
+    /**
+     * @property\getter myFoo
+     */
+    public function getMyFoo(): string
+    {
+        return $this->targetObject->foo;
+    }
+    
+}
+
+$targetObject = new \stdClass();
+$targetObject->foo = 'bar';
+
+$myAdapter = new MyAdapter($targetObject);
+echo $myAdapter['foo'];  // 'bar'
+echo $myAdapter['myFoo'];  // 'bar'
+
+foreach ($myAdapter as $propertyName => $propertyValue) {
+    echo "$propertyName: $propertyValue";  // myFoo: bar
+}
 ```

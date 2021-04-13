@@ -4,7 +4,6 @@
 namespace Dandjo\ObjectAdapter;
 
 
-use ArrayAccess;
 use Dandjo\ObjectAdapter\Reflection\AdapterProperty;
 use Iterator;
 use ReflectionClass;
@@ -16,7 +15,7 @@ use ReflectionMethod;
  * Class ObjectAdapter.
  * @package Dandjo\ObjectAdapter
  */
-class ObjectAdapter implements ArrayAccess, Iterator
+class ObjectAdapter implements ObjectAdapterInterface, Iterator
 {
 
     /**
@@ -32,7 +31,7 @@ class ObjectAdapter implements ArrayAccess, Iterator
     /**
      * @var AdapterProperty[]
      */
-    private $properties;
+    private $properties = [];
 
     /**
      * ObjectAdapter constructor.
@@ -42,6 +41,7 @@ class ObjectAdapter implements ArrayAccess, Iterator
     {
         assert(is_object($object));
         $this->targetObject = $object;
+        $this->initProperties();
     }
 
     /**
@@ -103,7 +103,7 @@ class ObjectAdapter implements ArrayAccess, Iterator
      */
     public function __isset($property): bool
     {
-        return property_exists($this->targetObject, $property);
+        return $this->hasProperty($property) || property_exists($this->targetObject, $property);
     }
 
     /**
@@ -111,7 +111,11 @@ class ObjectAdapter implements ArrayAccess, Iterator
      */
     public function __unset($property)
     {
-        unset($this->targetObject->{$property});
+        if ($this->hasProperty($property)) {
+            unset($this->properties[$property]);
+        } else {
+            unset($this->targetObject->{$property});
+        }
     }
 
     /**
@@ -157,12 +161,12 @@ class ObjectAdapter implements ArrayAccess, Iterator
 
     /**
      * Return the current element.
-     * @return AdapterProperty|null
+     * @return mixed
      * @throws ReflectionException
      */
     public function current()
     {
-        $properties = array_keys($this->getProperties());
+        $properties = array_keys($this->properties);
         $property = $properties[$this->position];
         return $this->__get($property);
     }
@@ -181,7 +185,7 @@ class ObjectAdapter implements ArrayAccess, Iterator
      */
     public function key()
     {
-        $properties = array_keys($this->getProperties());
+        $properties = array_keys($this->properties);
         return $properties[$this->position];
     }
 
@@ -191,7 +195,7 @@ class ObjectAdapter implements ArrayAccess, Iterator
      */
     public function valid()
     {
-        $properties = array_keys($this->getProperties());
+        $properties = array_keys($this->properties);
         return isset($properties[$this->position]);
     }
 
@@ -204,47 +208,13 @@ class ObjectAdapter implements ArrayAccess, Iterator
     }
 
     /**
-     * Get all annotated AdapterProperties.
-     * @return AdapterProperty[]
-     */
-    public function getProperties(): array
-    {
-        if ($this->properties !== null) {
-            return $this->properties;
-        }
-        $reflectionCls = new ReflectionClass($this);
-        $properties = [];
-        foreach ($reflectionCls->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            $doc = $method->getDocComment();
-            $getter = [];
-            $setter = [];
-            preg_match('/@property\\\getter(.*\s+)(.*)\n/s', $doc, $getter);
-            preg_match('/@property\\\setter(.*\s+)(.*)\n/s', $doc, $setter);
-            if (isset($getter[2])) {
-                if (empty($properties[$getter[2]])) {
-                    $properties[$getter[2]] = new AdapterProperty();
-                }
-                $properties[$getter[2]]->setGetter($method);
-            }
-            if (isset($setter[2])) {
-                if (empty($properties[$setter[2]])) {
-                    $properties[$setter[2]] = new AdapterProperty();
-                }
-                $properties[$setter[2]]->setSetter($method);
-            }
-
-        }
-        return $this->properties = $properties;
-    }
-
-    /**
      * Get an annotated AdapterProperty.
      * @param $property
      * @return AdapterProperty|null
      */
-    public function getProperty($property): ?AdapterProperty
+    private function getProperty($property): ?AdapterProperty
     {
-        return $this->getProperties()[$property] ?? null;
+        return $this->properties[$property] ?? null;
     }
 
     /**
@@ -252,9 +222,34 @@ class ObjectAdapter implements ArrayAccess, Iterator
      * @param $property
      * @return bool
      */
-    public function hasProperty($property): bool
+    private function hasProperty($property): bool
     {
-        return array_key_exists($property, $this->getProperties());
+        return array_key_exists($property, $this->properties);
+    }
+
+    /**
+     * Initialize properties with reflection.
+     */
+    private function initProperties()
+    {
+        $reflectionCls = new ReflectionClass($this);
+        foreach ($reflectionCls->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            $doc = $method->getDocComment();
+            $matches = [];
+            preg_match('/@property\\\(getter|setter)(.*)\n/s', $doc, $matches);
+            if (isset($matches[2])) {
+                $property = trim($matches[2]);
+                if (empty($this->properties[$property])) {
+                    $this->properties[$property] = new AdapterProperty();
+                }
+                if ($matches[1] === 'getter') {
+                    $this->properties[$property]->setGetter($method);
+                }
+                if ($matches[1] === 'setter') {
+                    $this->properties[$property]->setSetter($method);
+                }
+            }
+        }
     }
 
 }

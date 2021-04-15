@@ -49,4 +49,6 @@ var_dump([
     $myAdapter->get('myOtherProp') === 'other',
     $myAdapter->get('wrongProp') instanceof \Dandjo\ObjectAdapter\NullAdapter,
     $myAdapter->myUnsetProp instanceof \Dandjo\ObjectAdapter\NullAdapter,
+    $myAdapter->get('chained.wrong.prop') instanceof \Dandjo\ObjectAdapter\NullAdapter,
+    $myAdapter->get('.') instanceof \Dandjo\ObjectAdapter\NullAdapter,
 ]);

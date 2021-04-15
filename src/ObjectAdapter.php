@@ -46,23 +46,23 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
 
     /**
      * @param $dottedPath
-     * @param mixed $default
      * @return mixed
      */
-    public function get($dottedPath, $default = null)
+    public function get($dottedPath)
     {
         $properties = preg_split('/\./', $dottedPath);
         $property = array_shift($properties);
         if (empty($property)) {
             return new NullAdapter();
         }
-        if (is_a($this->{$property}, self::class)) {
-            return $this->{$property}->get(implode('.', $properties), $default);
+        $propertyValue = $this->{$property};
+        if (is_a($propertyValue, self::class)) {
+            return $propertyValue->get(implode('.', $properties));
         }
         if (count($properties) > 0) {
             return new NullAdapter();
         }
-        return $this->{$property} ?: ($default !== null ? $default : new NullAdapter());
+        return $propertyValue;
     }
 
     /**

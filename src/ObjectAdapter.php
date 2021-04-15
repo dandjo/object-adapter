@@ -208,11 +208,20 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     }
 
     /**
+     * Gets all annotated AdapterProperty objects.
+     * @return AdapterProperty[]
+     */
+    public function getProperties(): array
+    {
+        return $this->properties;
+    }
+
+    /**
      * Get an annotated AdapterProperty.
      * @param $property
      * @return AdapterProperty|null
      */
-    private function getProperty($property): ?AdapterProperty
+    public function getProperty($property): ?AdapterProperty
     {
         return $this->properties[$property] ?? null;
     }
@@ -222,7 +231,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      * @param $property
      * @return bool
      */
-    private function hasProperty($property): bool
+    public function hasProperty($property): bool
     {
         return array_key_exists($property, $this->properties);
     }

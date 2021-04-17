@@ -6,7 +6,6 @@ namespace Dandjo\ObjectAdapter;
 
 use Dandjo\ObjectAdapter\Annotation\PropertyAnnotationTrait;
 use Iterator;
-use JsonSerializable;
 use ReflectionException;
 
 
@@ -14,7 +13,7 @@ use ReflectionException;
  * Class ObjectAdapter.
  * @package Dandjo\ObjectAdapter
  */
-class ObjectAdapter implements ObjectAdapterInterface, Iterator, JsonSerializable
+class ObjectAdapter implements ObjectAdapterInterface, Iterator
 {
 
     use PropertyAnnotationTrait;
@@ -131,7 +130,6 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator, JsonSerializabl
      * Offset to retrieve.
      * @param $offset
      * @return mixed
-     * @throws ReflectionException
      */
     public function offsetGet($offset)
     {
@@ -161,7 +159,6 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator, JsonSerializabl
     /**
      * Return the current element.
      * @return mixed
-     * @throws ReflectionException
      */
     public function current()
     {
@@ -209,19 +206,18 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator, JsonSerializabl
     /**
      * Specify properties to be serialized.
      */
-    public function getSerializationProperties(): array
+    public function jsonProperties(): array
     {
         return [];
     }
 
     /**
      * Specify data which should be serialized to JSON.
-     * @throws ReflectionException
      */
     public function jsonSerialize()
     {
         $json = [];
-        $properties = $this->getSerializationProperties();
+        $properties = $this->jsonProperties();
         foreach ($properties as $property) {
             $json[$property] = $this->{$property};
         }

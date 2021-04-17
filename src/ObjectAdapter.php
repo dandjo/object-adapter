@@ -4,19 +4,20 @@
 namespace Dandjo\ObjectAdapter;
 
 
-use Dandjo\ObjectAdapter\Reflection\AdapterProperty;
+use Dandjo\ObjectAdapter\Annotation\PropertyAnnotationTrait;
 use Iterator;
-use ReflectionClass;
+use JsonSerializable;
 use ReflectionException;
-use ReflectionMethod;
 
 
 /**
  * Class ObjectAdapter.
  * @package Dandjo\ObjectAdapter
  */
-class ObjectAdapter implements ObjectAdapterInterface, Iterator
+class ObjectAdapter implements ObjectAdapterInterface, Iterator, JsonSerializable
 {
+
+    use PropertyAnnotationTrait;
 
     /**
      * @var object
@@ -27,11 +28,6 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      * @var int
      */
     private $position = 0;
-
-    /**
-     * @var AdapterProperty[]
-     */
-    private $properties = [];
 
     /**
      * ObjectAdapter constructor.
@@ -47,6 +43,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     /**
      * @param $dottedPath
      * @return mixed
+     * @throws ReflectionException
      */
     public function get($dottedPath)
     {
@@ -75,8 +72,9 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
         if (empty($property)) {
             return new NullAdapter();
         }
-        if (($adapterProperty = $this->getProperty($property)) && ($getter = $adapterProperty->getGetter())) {
-            return $getter->invoke($this);
+        $adapterProperty = $this->getProperty($property);
+        if ($adapterProperty && $adapterProperty->hasGetter()) {
+            return $adapterProperty->getGetter()->invoke($this);
         }
         return $this->targetObject->{$property} ?? new NullAdapter();
     }
@@ -89,8 +87,9 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      */
     public function __set($property, $value): ObjectAdapter
     {
-        if (($adapterProperty = $this->getProperty($property)) && ($setter = $adapterProperty->getSetter())) {
-            $setter->invoke($this, $value);
+        $adapterProperty = $this->getProperty($property);
+        if ($adapterProperty && $adapterProperty->hasSetter()) {
+            $adapterProperty->getSetter()->invoke($this, $value);
             return $this;
         }
         $this->targetObject->{$property} = $value;
@@ -136,7 +135,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      */
     public function offsetGet($offset)
     {
-        return $this->__get($offset);
+        return $this->{$offset};
     }
 
     /**
@@ -168,7 +167,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     {
         $properties = array_keys($this->properties);
         $property = $properties[$this->position];
-        return $this->__get($property);
+        return $this->{$property};
     }
 
     /**
@@ -208,57 +207,25 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     }
 
     /**
-     * Gets all annotated AdapterProperty objects.
-     * @return AdapterProperty[]
+     * Specify properties to be serialized.
      */
-    public function getProperties(): array
+    public function getSerializationProperties(): array
     {
-        return $this->properties;
+        return [];
     }
 
     /**
-     * Get an annotated AdapterProperty.
-     * @param $property
-     * @return AdapterProperty|null
+     * Specify data which should be serialized to JSON.
+     * @throws ReflectionException
      */
-    public function getProperty($property): ?AdapterProperty
+    public function jsonSerialize()
     {
-        return $this->properties[$property] ?? null;
-    }
-
-    /**
-     * Whether a property is annotated.
-     * @param $property
-     * @return bool
-     */
-    public function hasProperty($property): bool
-    {
-        return array_key_exists($property, $this->properties);
-    }
-
-    /**
-     * Initialize properties with reflection.
-     */
-    private function initProperties()
-    {
-        $reflectionCls = new ReflectionClass($this);
-        foreach ($reflectionCls->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            $doc = $method->getDocComment();
-            $matches = [];
-            preg_match('/@property\\\(getter|setter)(.*)\n/s', $doc, $matches);
-            if (isset($matches[2])) {
-                $property = trim($matches[2]);
-                if (empty($this->properties[$property])) {
-                    $this->properties[$property] = new AdapterProperty();
-                }
-                if ($matches[1] === 'getter') {
-                    $this->properties[$property]->setGetter($method);
-                }
-                if ($matches[1] === 'setter') {
-                    $this->properties[$property]->setSetter($method);
-                }
-            }
+        $json = [];
+        $properties = $this->getSerializationProperties();
+        foreach ($properties as $property) {
+            $json[$property] = $this->{$property};
         }
+        return $json;
     }
 
 }

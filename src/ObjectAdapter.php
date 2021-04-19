@@ -16,12 +16,7 @@ use ReflectionException;
 class ObjectAdapter implements ObjectAdapterInterface, Iterator
 {
 
-    use PropertyAnnotationTrait {
-        __get as annotated__get;
-        __set as annotated__set;
-        __isset as annotated__isset;
-        __unset as annotated__unset;
-    }
+    use PropertyAnnotationTrait;
 
     /**
      * @var object

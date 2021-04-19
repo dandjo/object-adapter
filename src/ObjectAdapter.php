@@ -16,7 +16,12 @@ use ReflectionException;
 class ObjectAdapter implements ObjectAdapterInterface, Iterator
 {
 
-    use PropertyAnnotationTrait;
+    use PropertyAnnotationTrait {
+        __get as annotated__get;
+        __set as annotated__set;
+        __isset as annotated__isset;
+        __unset as annotated__unset;
+    }
 
     /**
      * @var object
@@ -68,9 +73,6 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      */
     public function __get($property)
     {
-        if (empty($property)) {
-            return new NullAdapter();
-        }
         $adapterProperty = $this->getProperty($property);
         if ($adapterProperty && $adapterProperty->hasGetter()) {
             return $adapterProperty->getGetter()->invoke($this);

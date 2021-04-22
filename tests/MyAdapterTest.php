@@ -10,25 +10,25 @@ class MyAdapterTest extends \Dandjo\ObjectAdapter\ObjectAdapter
 {
 
     /**
-     * @property\getter myFirstProp
+     * @property\getter firstProp
      */
-    public function getMyProperty1()
+    public function getFirstProp()
     {
         return 'first';
     }
 
     /**
-     * @property\getter myOtherProp
+     * @property\getter otherProp
      */
-    public function getMyProperty2()
+    public function getOtherProp()
     {
         return 'other';
     }
 
     /**
-     * @property\getter myUnsetProp
+     * @property\getter unsetProp
      */
-    public function getUnsetProperty()
+    public function getUnsetProp()
     {
         return 'unset';
     }
@@ -36,23 +36,21 @@ class MyAdapterTest extends \Dandjo\ObjectAdapter\ObjectAdapter
 }
 
 $targetObject = new stdClass();
-$targetObject->myProp = 'test';
-$targetObject->myUnsetLegacyProp = 'legacy';
+$targetObject->prop = 'test';
+$targetObject->unsetLegacyProp = 'legacy';
 
 $myAdapter = new MyAdapterTest($targetObject);
-unset($myAdapter['myUnsetProp']);
-unset($myAdapter['myUnsetLegacyProp']);
+unset($myAdapter['unsetProp']);
+unset($myAdapter['unsetLegacyProp']);
 
 var_dump([
-    $myAdapter->myProp === 'test',
-    $myAdapter->myFirstProp === 'first',
-    $myAdapter->myOtherProp === 'other',
+    $myAdapter->prop === 'test',
+    $myAdapter->firstProp === 'first',
+    $myAdapter->otherProp === 'other',
     isset($myAdapter['wrongProp']) === false,
-    isset($myAdapter['myProp']) === true,
-    $myAdapter->get('myOtherProp') === 'other',
-    $myAdapter->get('wrongProp') instanceof \Dandjo\ObjectAdapter\NullAdapter,
-    $myAdapter->myUnsetProp instanceof \Dandjo\ObjectAdapter\NullAdapter,
-    $myAdapter->myUnsetLegacyProp instanceof \Dandjo\ObjectAdapter\NullAdapter,
-    $myAdapter->get('chained.wrong.prop') instanceof \Dandjo\ObjectAdapter\NullAdapter,
-    $myAdapter->get('.') instanceof \Dandjo\ObjectAdapter\NullAdapter,
+    isset($myAdapter['prop']) === true,
+    $myAdapter->wrongProp instanceof \Dandjo\ObjectAdapter\NullAdapter,
+    $myAdapter->unsetProp instanceof \Dandjo\ObjectAdapter\NullAdapter,
+    $myAdapter->unsetLegacyProp instanceof \Dandjo\ObjectAdapter\NullAdapter,
+    $myAdapter->chained->wrong->prop instanceof \Dandjo\ObjectAdapter\NullAdapter,
 ]);

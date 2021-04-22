@@ -13,24 +13,24 @@ class PropertyAnnotationTest
         $this->initProperties();
     }
 
-    public $mySecondProperty = 'my_second_one';
+    public $secondProperty = 'second_one';
 
     /**
-     * @property\getter myFirstProperty
+     * @property\getter firstProperty
      */
-    public function getMyFirstProperty()
+    public function getFirstProperty()
     {
-        return 'my_property';
+        return 'first_property';
     }
 
 }
 
-$myPropertyAnnotationTest = new PropertyAnnotationTest();
+$myPropertyAnnotation = new PropertyAnnotationTest();
 
 var_dump([
-    $myPropertyAnnotationTest->myFirstProperty === 'my_property',
-    $myPropertyAnnotationTest->mySecondProperty === 'my_second_one',
-    isset($myPropertyAnnotationTest->myFirstProperty) === true,
-    isset($myPropertyAnnotationTest->mySecondProperty) === true,
-    $myPropertyAnnotationTest->myInvalidProperty === NULL,
+    $myPropertyAnnotation->firstProperty === 'first_property',
+    $myPropertyAnnotation->secondProperty === 'second_one',
+    isset($myPropertyAnnotation->firstProperty) === true,
+    isset($myPropertyAnnotation->secondProperty) === true,
+    $myPropertyAnnotation->invalidProperty === NULL,
 ]);

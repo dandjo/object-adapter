@@ -82,8 +82,8 @@ echo $myAdapter->myFoo;  // 'baz'
 echo $targetObject->foo;  // 'baz'
 ```
 
-If you want to use deep object hierarchies, take a look at the following example. You can get the value of `bar`
-directly with a dotted path.
+If you want to use deep object hierarchies, have a look at the following example. Chained calls are safe since every
+non-existent property will return a `NullAdapter`.
 
 ```php
 class MyChildAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter {
@@ -115,7 +115,7 @@ $targetObject->child = new \stdClass();
 $targetObject->child->foo = 'bar';
 
 $myAdapter = new MyAdapter($targetObject);
-echo $myAdapter->get('myChild.myFoo');  // 'bar'
+echo $myAdapter->myChild->myFoo;  // 'bar'
 ```
 
 Each adapter implements the `ArrayAccess` and `Interator` Interface, so you can also access or loop annotated properties

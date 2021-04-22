@@ -3,12 +3,10 @@
 
 namespace Dandjo\ObjectAdapter\Annotation;
 
-
 use Dandjo\ObjectAdapter\NullAdapter;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
-
 
 /**
  * Trait PropertyAnnotationTrait.
@@ -23,7 +21,13 @@ trait PropertyAnnotationTrait
     private $properties = [];
 
     /**
+     * @var int
+     */
+    private $propertyPosition = 0;
+
+    /**
      * @param string $property
+     *
      * @return mixed|NullAdapter
      * @throws ReflectionException
      */
@@ -38,7 +42,8 @@ trait PropertyAnnotationTrait
 
     /**
      * @param string $property
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return $this
      * @throws ReflectionException
      */
@@ -55,6 +60,7 @@ trait PropertyAnnotationTrait
 
     /**
      * @param string $property
+     *
      * @return bool
      */
     public function __isset(string $property): bool
@@ -75,6 +81,136 @@ trait PropertyAnnotationTrait
     }
 
     /**
+     * Whether an offset exists.
+     *
+     * @param $offset
+     *
+     * @return bool
+     */
+    public function offsetExists($offset): bool
+    {
+        return $this->__isset($offset);
+    }
+
+    /**
+     * Offset to retrieve.
+     *
+     * @param $offset
+     *
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->{$offset};
+    }
+
+    /**
+     * Offset to set.
+     *
+     * @param $offset
+     * @param $value
+     *
+     * @throws ReflectionException
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->__set($offset, $value);
+    }
+
+    /**
+     * Offset to unset.
+     *
+     * @param $offset
+     */
+    public function offsetUnset($offset)
+    {
+        $this->__unset($offset);
+    }
+
+    /**
+     * Return the current element.
+     * @return mixed
+     */
+    public function current()
+    {
+        $properties = array_keys($this->properties);
+        $property = $properties[$this->propertyPosition];
+        return $this->{$property};
+    }
+
+    /**
+     * Move forward to next element.
+     */
+    public function next()
+    {
+        ++$this->propertyPosition;
+    }
+
+    /**
+     * Return the key of the current element.
+     * @return string
+     */
+    public function key(): string
+    {
+        $properties = array_keys($this->properties);
+        return $properties[$this->propertyPosition];
+    }
+
+    /**
+     * Checks if current position is valid.
+     * @return bool
+     */
+    public function valid(): bool
+    {
+        $properties = array_keys($this->properties);
+        return isset($properties[$this->propertyPosition]);
+    }
+
+    /**
+     * Rewind the Iterator to the first element.
+     */
+    public function rewind()
+    {
+        $this->propertyPosition = 0;
+    }
+
+    /**
+     * Specify properties to be serialized.
+     */
+    public function jsonProperties(): array
+    {
+        return [];
+    }
+
+    /**
+     * Specify data which should be serialized to JSON.
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray($this->jsonProperties());
+    }
+
+    /**
+     * Generate an array from given properties. Will use all annotated properties if given properties are empty.
+     *
+     * @param array $properties
+     *
+     * @return array
+     */
+    public function toArray(array $properties = []): array
+    {
+        if (empty($properties)) {
+            $properties = array_keys($this->properties);
+        }
+        $json = [];
+        foreach ($properties as $property) {
+            $json[$property] = $this->{$property};
+        }
+        return $json;
+    }
+
+    /**
      * Get all annotated AdapterProperty objects.
      * @return AnnotatedProperty[]
      */
@@ -85,7 +221,9 @@ trait PropertyAnnotationTrait
 
     /**
      * Get an annotated AdapterProperty.
+     *
      * @param string $property
+     *
      * @return AnnotatedProperty|null
      */
     public function getProperty(string $property): ?AnnotatedProperty
@@ -95,7 +233,9 @@ trait PropertyAnnotationTrait
 
     /**
      * Whether a property is annotated.
+     *
      * @param string $property
+     *
      * @return bool
      */
     public function hasProperty(string $property): bool

@@ -6,7 +6,7 @@ require_once 'src/ObjectAdapterInterface.php';
 require_once 'src/ObjectAdapter.php';
 require_once 'src/NullAdapter.php';
 
-class MyAdapter extends \Dandjo\ObjectAdapter\ObjectAdapter
+class MyAdapterTest extends \Dandjo\ObjectAdapter\ObjectAdapter
 {
 
     /**
@@ -39,7 +39,7 @@ $targetObject = new stdClass();
 $targetObject->myProp = 'test';
 $targetObject->myUnsetLegacyProp = 'legacy';
 
-$myAdapter = new MyAdapter($targetObject);
+$myAdapter = new MyAdapterTest($targetObject);
 unset($myAdapter['myUnsetProp']);
 unset($myAdapter['myUnsetLegacyProp']);
 

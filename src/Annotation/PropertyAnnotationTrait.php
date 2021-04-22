@@ -23,11 +23,11 @@ trait PropertyAnnotationTrait
     private $properties = [];
 
     /**
-     * @param $property
+     * @param string $property
      * @return mixed|NullAdapter
      * @throws ReflectionException
      */
-    public function __get($property)
+    public function __get(string $property)
     {
         $annotatedProperty = $this->getProperty($property);
         if ($annotatedProperty && $annotatedProperty->hasGetter()) {
@@ -37,12 +37,12 @@ trait PropertyAnnotationTrait
     }
 
     /**
-     * @param $property
-     * @param $value
+     * @param string $property
+     * @param mixed $value
      * @return $this
      * @throws ReflectionException
      */
-    public function __set($property, $value)
+    public function __set(string $property, $value)
     {
         $annotatedProperty = $this->getProperty($property);
         if ($annotatedProperty && $annotatedProperty->hasSetter()) {
@@ -54,18 +54,18 @@ trait PropertyAnnotationTrait
     }
 
     /**
-     * @param $property
+     * @param string $property
      * @return bool
      */
-    public function __isset($property): bool
+    public function __isset(string $property): bool
     {
         return $this->hasProperty($property) || property_exists($this, $property);
     }
 
     /**
-     * @param $property
+     * @param string $property
      */
-    public function __unset($property)
+    public function __unset(string $property)
     {
         if ($this->hasProperty($property)) {
             unset($this->properties[$property]);
@@ -85,20 +85,20 @@ trait PropertyAnnotationTrait
 
     /**
      * Get an annotated AdapterProperty.
-     * @param $property
+     * @param string $property
      * @return AnnotatedProperty|null
      */
-    public function getProperty($property): ?AnnotatedProperty
+    public function getProperty(string $property): ?AnnotatedProperty
     {
         return $this->properties[$property] ?? null;
     }
 
     /**
      * Whether a property is annotated.
-     * @param $property
+     * @param string $property
      * @return bool
      */
-    public function hasProperty($property): bool
+    public function hasProperty(string $property): bool
     {
         return array_key_exists($property, $this->properties);
     }
@@ -106,7 +106,7 @@ trait PropertyAnnotationTrait
     /**
      * Initialize properties with reflection.
      */
-    private function initProperties()
+    protected function initProperties()
     {
         $reflectionCls = new ReflectionClass($this);
         foreach ($reflectionCls->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {

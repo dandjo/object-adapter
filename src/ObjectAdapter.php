@@ -3,11 +3,9 @@
 
 namespace Dandjo\ObjectAdapter;
 
-
 use Dandjo\ObjectAdapter\Annotation\PropertyAnnotationTrait;
 use Iterator;
 use ReflectionException;
-
 
 /**
  * Class ObjectAdapter.
@@ -30,6 +28,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
 
     /**
      * ObjectAdapter constructor.
+     *
      * @param $object
      */
     public function __construct($object)
@@ -40,11 +39,12 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     }
 
     /**
-     * @param $dottedPath
+     * @param string $dottedPath
+     *
      * @return mixed
      * @throws ReflectionException
      */
-    public function get($dottedPath)
+    public function get(string $dottedPath)
     {
         $properties = preg_split('/\./', $dottedPath);
         $property = array_shift($properties);
@@ -62,11 +62,12 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     }
 
     /**
-     * @param $property
+     * @param string $property
+     *
      * @return mixed|NullAdapter
      * @throws ReflectionException
      */
-    public function __get($property)
+    public function __get(string $property)
     {
         $adapterProperty = $this->getProperty($property);
         if ($adapterProperty && $adapterProperty->hasGetter()) {
@@ -76,12 +77,13 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     }
 
     /**
-     * @param $property
-     * @param $value
+     * @param string $property
+     * @param mixed  $value
+     *
      * @return $this
      * @throws ReflectionException
      */
-    public function __set($property, $value): ObjectAdapter
+    public function __set(string $property, $value): ObjectAdapter
     {
         $adapterProperty = $this->getProperty($property);
         if ($adapterProperty && $adapterProperty->hasSetter()) {
@@ -93,18 +95,19 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
     }
 
     /**
-     * @param $property
+     * @param string $property
+     *
      * @return bool
      */
-    public function __isset($property): bool
+    public function __isset(string $property): bool
     {
         return $this->hasProperty($property) || property_exists($this->targetObject, $property);
     }
 
     /**
-     * @param $property
+     * @param string $property
      */
-    public function __unset($property)
+    public function __unset(string $property)
     {
         if ($this->hasProperty($property)) {
             unset($this->properties[$property]);
@@ -115,7 +118,9 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
 
     /**
      * Whether an offset exists.
+     *
      * @param $offset
+     *
      * @return bool
      */
     public function offsetExists($offset): bool
@@ -125,7 +130,9 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
 
     /**
      * Offset to retrieve.
+     *
      * @param $offset
+     *
      * @return mixed
      */
     public function offsetGet($offset)
@@ -135,8 +142,10 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
 
     /**
      * Offset to set.
+     *
      * @param $offset
      * @param $value
+     *
      * @throws ReflectionException
      */
     public function offsetSet($offset, $value)
@@ -146,6 +155,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
 
     /**
      * Offset to unset.
+     *
      * @param $offset
      */
     public function offsetUnset($offset)
@@ -176,7 +186,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      * Return the key of the current element.
      * @return string
      */
-    public function key()
+    public function key(): string
     {
         $properties = array_keys($this->properties);
         return $properties[$this->position];
@@ -186,7 +196,7 @@ class ObjectAdapter implements ObjectAdapterInterface, Iterator
      * Checks if current position is valid.
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         $properties = array_keys($this->properties);
         return isset($properties[$this->position]);

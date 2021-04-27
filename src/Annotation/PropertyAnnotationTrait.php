@@ -3,7 +3,6 @@
 
 namespace Dandjo\ObjectAdapter\Annotation;
 
-use Dandjo\ObjectAdapter\NullAdapter;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -28,7 +27,7 @@ trait PropertyAnnotationTrait
     /**
      * @param string $property
      *
-     * @return mixed|NullAdapter
+     * @return mixed
      * @throws ReflectionException
      */
     public function __get(string $property)
@@ -54,6 +53,28 @@ trait PropertyAnnotationTrait
             $annotatedProperty->getSetter()->invoke($this, $value);
             return $this;
         }
+        $this->{$property} = $value;
+        return $this;
+    }
+
+    /**
+     * @param string $property
+     *
+     * @return mixed
+     */
+    public function get(string $property)
+    {
+        return $this->{$property};
+    }
+
+    /**
+     * @param string $property
+     * @param        $value
+     *
+     * @return $this
+     */
+    public function set(string $property, $value): PropertyAnnotationTrait
+    {
         $this->{$property} = $value;
         return $this;
     }

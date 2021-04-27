@@ -11,7 +11,7 @@ use ReflectionException;
  * Class ObjectAdapter.
  * @package Dandjo\ObjectAdapter
  */
-class ObjectAdapter implements ObjectAdapterInterface, Iterator
+class ObjectAdapter implements Iterator, ObjectAdapterInterface
 {
 
     use PropertyAnnotationTrait;

@@ -108,7 +108,7 @@ trait PropertyAnnotationTrait
      */
     public function __sleep()
     {
-        return array_diff(get_object_vars($this), ['properties']);
+        return array_diff(array_kexs(get_object_vars($this)), ['properties']);
     }
 
     /**

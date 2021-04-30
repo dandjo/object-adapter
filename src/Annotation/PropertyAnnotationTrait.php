@@ -102,6 +102,24 @@ trait PropertyAnnotationTrait
     }
 
     /**
+     * Executed prior to any serialization. Return the properties that should be serialized.
+     *
+     * @return array
+     */
+    public function __sleep()
+    {
+        return array_diff(get_object_vars($this), ['properties']);
+    }
+
+    /**
+     * Executed after deserialization. Reconstruct any resources that the object may have.
+     */
+    public function __wakeup()
+    {
+        $this->initProperties();
+    }
+
+    /**
      * Whether an offset exists.
      *
      * @param $offset

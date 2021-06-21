@@ -296,7 +296,7 @@ trait PropertyAnnotationTrait
         foreach ($reflectionCls->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             $doc = $method->getDocComment();
             $matches = [];
-            preg_match('/@property\\\(getter|setter)(.*)\n/s', $doc, $matches);
+            preg_match('/@property\\\(getter|setter)\s(.*?)\n/s', $doc, $matches);
             if (isset($matches[2])) {
                 $property = trim($matches[2]);
                 if (empty($this->properties[$property])) {

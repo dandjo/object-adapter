@@ -25,6 +25,11 @@ trait PropertyAnnotationTrait
     private $propertyPosition = 0;
 
     /**
+     * @var array
+     */
+    public $jsonProperties = [];
+
+    /**
      * @param string $property
      *
      * @return mixed
@@ -225,9 +230,9 @@ trait PropertyAnnotationTrait
      * Specify data which should be serialized to JSON.
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-        return $this->toArray($this->jsonProperties());
+        return $this->toArray(array_merge($this->jsonProperties, $this->jsonProperties()));
     }
 
     /**

@@ -27,7 +27,7 @@ trait PropertyAnnotationTrait
     /**
      * @var array
      */
-    public $jsonProperties = [];
+    private $jsonProperties = [];
 
     /**
      * @param string $property
@@ -78,7 +78,7 @@ trait PropertyAnnotationTrait
      *
      * @return $this
      */
-    public function set(string $property, $value): PropertyAnnotationTrait
+    public function set(string $property, $value)
     {
         $this->{$property} = $value;
         return $this;
@@ -227,12 +227,35 @@ trait PropertyAnnotationTrait
     }
 
     /**
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setJsonProperties(array $properties)
+    {
+        $this->jsonProperties = array_merge($this->jsonProperties, $properties);
+        return $this;
+    }
+
+    /**
+     * @param string $property
+     *
+     * @return $this
+     */
+    public function addJsonProperty(string $property)
+    {
+        $this->jsonProperties[] = $property;
+        return $this;
+    }
+
+    /**
      * Specify data which should be serialized to JSON.
      * @return array
      */
     public function jsonSerialize(): array
     {
-        return $this->toArray(array_merge($this->jsonProperties, $this->jsonProperties()));
+        $properties = array_merge($this->jsonProperties, $this->jsonProperties());
+        return $this->toArray(array_unique($properties));
     }
 
     /**

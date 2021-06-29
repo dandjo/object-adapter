@@ -254,7 +254,10 @@ trait PropertyAnnotationTrait
      */
     public function jsonSerialize(): array
     {
-        $properties = array_merge($this->jsonProperties, $this->jsonProperties());
+        $properties = $this->jsonProperties;
+        if (empty($properties)) {
+            $properties = $this->jsonProperties();
+        }
         return $this->toArray(array_unique($properties));
     }
 

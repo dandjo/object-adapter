@@ -231,7 +231,7 @@ trait PropertyAnnotationTrait
      *
      * @return $this
      */
-    public function setJsonProperties(array $properties)
+    public function addJsonProperties(array $properties)
     {
         $this->jsonProperties = array_merge($this->jsonProperties, $properties);
         return $this;
@@ -254,10 +254,7 @@ trait PropertyAnnotationTrait
      */
     public function jsonSerialize(): array
     {
-        $properties = $this->jsonProperties;
-        if (empty($properties)) {
-            $properties = $this->jsonProperties();
-        }
+        $properties = array_merge($this->jsonProperties(), $this->jsonProperties);
         return $this->toArray(array_unique($properties));
     }
 
@@ -273,11 +270,11 @@ trait PropertyAnnotationTrait
         if (empty($properties)) {
             $properties = array_keys($this->properties);
         }
-        $json = [];
+        $array = [];
         foreach ($properties as $property) {
-            $json[$property] = $this->{$property};
+            $array[$property] = $this->{$property};
         }
-        return $json;
+        return $array;
     }
 
     /**

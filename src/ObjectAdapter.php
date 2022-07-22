@@ -55,7 +55,7 @@ class ObjectAdapter implements Iterator, ObjectAdapterInterface
      * @return $this
      * @throws ReflectionException
      */
-    public function __set(string $property, $value): ObjectAdapter
+    public function __set(string $property, $value)
     {
         $adapterProperty = $this->getProperty($property);
         if ($adapterProperty && $adapterProperty->hasSetter()) {

@@ -1,11 +1,11 @@
 {
 	"name": "dandjo/object-adapter",
-	"version": "6.5.0",
+	"version": "7.0.0",
 	"description": "Provides adapters for target objects with easy property access via magic getter and setter.",
 	"keywords": ["object", "adapter", "getter", "setter"],
 	"type": "library",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=8.0",
 		"ext-json": "*"
 	},
 	"license": "MIT",

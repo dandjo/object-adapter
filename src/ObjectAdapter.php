@@ -19,7 +19,7 @@ class ObjectAdapter implements Iterator, ObjectAdapterInterface
     /**
      * @var object
      */
-    public $targetObject;
+    public object $targetObject;
 
     /**
      * ObjectAdapter constructor.
@@ -39,7 +39,7 @@ class ObjectAdapter implements Iterator, ObjectAdapterInterface
      * @return mixed|NullAdapter
      * @throws ReflectionException
      */
-    public function __get(string $property)
+    public function __get(string $property): mixed
     {
         $adapterProperty = $this->getProperty($property);
         if ($adapterProperty && $adapterProperty->hasGetter()) {
@@ -52,18 +52,15 @@ class ObjectAdapter implements Iterator, ObjectAdapterInterface
      * @param string $property
      * @param mixed  $value
      *
-     * @return $this
      * @throws ReflectionException
      */
-    public function __set(string $property, $value)
+    public function __set(string $property, mixed $value): void
     {
         $adapterProperty = $this->getProperty($property);
         if ($adapterProperty && $adapterProperty->hasSetter()) {
             $adapterProperty->getSetter()->invoke($this, $value);
-            return $this;
         }
         $this->targetObject->{$property} = $value;
-        return $this;
     }
 
     /**
@@ -79,7 +76,7 @@ class ObjectAdapter implements Iterator, ObjectAdapterInterface
     /**
      * @param string $property
      */
-    public function __unset(string $property)
+    public function __unset(string $property): void
     {
         if ($this->hasProperty($property)) {
             unset($this->properties[$property]);

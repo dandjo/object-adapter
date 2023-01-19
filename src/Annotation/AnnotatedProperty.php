@@ -17,12 +17,12 @@ class AnnotatedProperty
     /**
      * @var ReflectionMethod|null
      */
-    private $getter = null;
+    private ?ReflectionMethod $getter = null;
 
     /**
      * @var ReflectionMethod|null
      */
-    private $setter = null;
+    private ?ReflectionMethod $setter = null;
 
     /**
      * @return ReflectionMethod|null

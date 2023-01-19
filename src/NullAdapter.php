@@ -25,7 +25,7 @@ class NullAdapter extends ObjectAdapter
 	/**
 	 * @return string
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return '';
 	}

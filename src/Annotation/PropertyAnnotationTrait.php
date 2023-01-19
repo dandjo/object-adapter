@@ -17,17 +17,17 @@ trait PropertyAnnotationTrait
     /**
      * @var AnnotatedProperty[]
      */
-    private $properties = [];
+    private array $properties = [];
 
     /**
      * @var int
      */
-    private $propertyPosition = 0;
+    private int $propertyPosition = 0;
 
     /**
      * @var array
      */
-    private $jsonProperties = [];
+    private array $jsonProperties = [];
 
     /**
      * @param string $property
@@ -35,7 +35,7 @@ trait PropertyAnnotationTrait
      * @return mixed
      * @throws ReflectionException
      */
-    public function __get(string $property)
+    public function __get(string $property): mixed
     {
         $annotatedProperty = $this->getProperty($property);
         if ($annotatedProperty && $annotatedProperty->hasGetter()) {
@@ -48,18 +48,15 @@ trait PropertyAnnotationTrait
      * @param string $property
      * @param mixed  $value
      *
-     * @return $this
      * @throws ReflectionException
      */
-    public function __set(string $property, $value)
+    public function __set(string $property, mixed $value): void
     {
         $annotatedProperty = $this->getProperty($property);
         if ($annotatedProperty && $annotatedProperty->hasSetter()) {
             $annotatedProperty->getSetter()->invoke($this, $value);
-            return $this;
         }
         $this->{$property} = $value;
-        return $this;
     }
 
     /**
@@ -67,7 +64,7 @@ trait PropertyAnnotationTrait
      *
      * @return mixed
      */
-    public function get(string $property)
+    public function get(string $property): mixed
     {
         return $this->{$property};
     }
@@ -78,7 +75,7 @@ trait PropertyAnnotationTrait
      *
      * @return $this
      */
-    public function set(string $property, $value)
+    public function set(string $property, $value): static
     {
         $this->{$property} = $value;
         return $this;
@@ -97,7 +94,7 @@ trait PropertyAnnotationTrait
     /**
      * @param string $property
      */
-    public function __unset(string $property)
+    public function __unset(string $property): void
     {
         if ($this->hasProperty($property)) {
             unset($this->properties[$property]);
@@ -111,7 +108,7 @@ trait PropertyAnnotationTrait
      *
      * @return array
      */
-    public function __sleep()
+    public function __sleep(): array
     {
         return array_diff(array_keys(get_object_vars($this)), ['properties']);
     }
@@ -119,7 +116,7 @@ trait PropertyAnnotationTrait
     /**
      * Executed after deserialization. Reconstruct any resources that the object may have.
      */
-    public function __wakeup()
+    public function __wakeup(): void
     {
         $this->initProperties();
     }
@@ -143,7 +140,7 @@ trait PropertyAnnotationTrait
      *
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->{$offset};
     }
@@ -156,7 +153,7 @@ trait PropertyAnnotationTrait
      *
      * @throws ReflectionException
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->__set($offset, $value);
     }
@@ -166,7 +163,7 @@ trait PropertyAnnotationTrait
      *
      * @param $offset
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->__unset($offset);
     }
@@ -175,7 +172,7 @@ trait PropertyAnnotationTrait
      * Return the current element.
      * @return mixed
      */
-    public function current()
+    public function current(): mixed
     {
         $properties = array_keys($this->properties);
         $property = $properties[$this->propertyPosition];
@@ -185,7 +182,7 @@ trait PropertyAnnotationTrait
     /**
      * Move forward to next element.
      */
-    public function next()
+    public function next(): void
     {
         ++$this->propertyPosition;
     }
@@ -213,7 +210,7 @@ trait PropertyAnnotationTrait
     /**
      * Rewind the Iterator to the first element.
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->propertyPosition = 0;
     }
@@ -231,7 +228,7 @@ trait PropertyAnnotationTrait
      *
      * @return $this
      */
-    public function addJsonProperties(array $properties)
+    public function addJsonProperties(array $properties): static
     {
         $this->jsonProperties = array_merge($this->jsonProperties, $properties);
         return $this;
@@ -242,7 +239,7 @@ trait PropertyAnnotationTrait
      *
      * @return $this
      */
-    public function addJsonProperty(string $property)
+    public function addJsonProperty(string $property): static
     {
         $this->jsonProperties[] = $property;
         return $this;
@@ -313,7 +310,7 @@ trait PropertyAnnotationTrait
     /**
      * Initialize properties with reflection.
      */
-    protected function initProperties()
+    protected function initProperties(): void
     {
         $reflectionCls = new ReflectionClass($this);
         foreach ($reflectionCls->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
